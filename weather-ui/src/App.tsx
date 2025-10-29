@@ -12,7 +12,7 @@ interface Weather {
 }
 
 function App() {
-  const [weather, setWeather] = useState({} as Weather)
+  const [weather, setWeather] = useState({} as Weather|null)
   const [zip, setZip] = useState('')
   const [error, setError] = useState('')
 
@@ -25,6 +25,11 @@ function App() {
     setError('');
     setWeather(null);
 
+    if(!zip) {
+      setError("Please enter a zip code")
+      return;
+    }
+    
     fetch('http://localhost:8080/weather/' + zip)
     .then(response => {
       console.log(response.ok);

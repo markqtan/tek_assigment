@@ -1,16 +1,16 @@
-package com.markqtan.weather_api.config;
+// package com.markqtan.weather_api.config;
 
-import java.util.Arrays;
+// import java.util.Arrays;
 
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.stereotype.Component;
+// import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
+// import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+// import org.springframework.stereotype.Component;
 
-@Component
-public class SpringCacheCustomizer implements CacheManagerCustomizer<ConcurrentMapCacheManager> {
+// @Component
+// public class SpringCacheCustomizer implements CacheManagerCustomizer<ConcurrentMapCacheManager> {
 
-    @Override
-    public void customize(ConcurrentMapCacheManager cacheManager) {
-        cacheManager.setCacheNames(Arrays.asList("weather"));
-    }
-}
+//     @Override
+//     public void customize(ConcurrentMapCacheManager cacheManager) {
+//         cacheManager.setCacheNames(Arrays.asList("weather"));
+//     }
+// }
