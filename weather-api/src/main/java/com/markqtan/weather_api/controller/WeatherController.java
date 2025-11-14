@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.markqtan.weather_api.model.Weather;
+import com.markqtan.weather_api.service.SqSPublisher;
 import com.markqtan.weather_api.service.StorageService;
 import com.markqtan.weather_api.service.WeatherService;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class WeatherController {
     private final WeatherService weatherService;
     private final StorageService storageService;
+    private final SqSPublisher sqSPublisher;
 
     @GetMapping("/weather/{zip}")
     public ResponseEntity<Weather> getWeatherByZip(@PathVariable(name = "zip") String zip) throws IOException {
@@ -40,6 +42,11 @@ public class WeatherController {
     @GetMapping("/s3/{zip}")
     Object getObject(@PathVariable(name = "zip") String zip) throws IOException {
         return storageService.getObject(zip);
+    }
+
+    @GetMapping("/sqs/{message}")
+    void sendMessage(@PathVariable(name = "message") String message) {
+        sqSPublisher.publishMessage(message);
     }
 
 }
