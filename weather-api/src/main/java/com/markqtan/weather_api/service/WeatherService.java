@@ -1,5 +1,7 @@
 package com.markqtan.weather_api.service;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -26,16 +28,19 @@ public class WeatherService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final CacheManager cacheManager;
+    private final StorageService storageService;
 
     @Cacheable(Constants.WEATHER)
-    public Weather getWeatherByZip(String zip) {
+    public Weather getWeatherByZip(String zip) throws IOException {
         WeatherResponse res = restTemplate.getForObject(url + zip + "?key=" + apiKey, WeatherResponse.class);
         System.out.println("api-call:" + res);
         if (res == null || res.getDays() == null || res.getDays().isEmpty()) {
             return null;
         }
 
-        return res.getDays().get(0);
+        Weather w = res.getDays().get(0);
+        storageService.upload(zip, w);
+        return w;
     }
 
     public boolean isCached(String zip) {
