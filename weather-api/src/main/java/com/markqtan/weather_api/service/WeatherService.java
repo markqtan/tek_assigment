@@ -41,7 +41,7 @@ public class WeatherService {
 
         Weather w = res.getDays().get(0);
         storageService.upload(zip, w);
-        sqSPublisher.publishMessage(w);
+        // sqSPublisher.publishMessage(w);
         return w;
     }
 
