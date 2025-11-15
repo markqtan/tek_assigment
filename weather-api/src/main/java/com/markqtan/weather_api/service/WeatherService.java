@@ -29,6 +29,7 @@ public class WeatherService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final CacheManager cacheManager;
     private final StorageService storageService;
+    private final SqSPublisher sqSPublisher;
 
     @Cacheable(Constants.WEATHER)
     public Weather getWeatherByZip(String zip) throws IOException {
@@ -40,6 +41,7 @@ public class WeatherService {
 
         Weather w = res.getDays().get(0);
         storageService.upload(zip, w);
+        sqSPublisher.publishMessage(w);
         return w;
     }
 

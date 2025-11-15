@@ -47,7 +47,7 @@ public class SqsMessageListener {
         for (Message message : messages) {
             String body = message.body();
 
-            log.info("processing snsEvent {} ", body);
+            log.info("processing sqsEvent {} ", body);
             try {
                 // extract SNS event
                 // HashMap snsEvent = objectMapper.readValue(body, HashMap.class);
