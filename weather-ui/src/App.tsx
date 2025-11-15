@@ -1,88 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import { useDispatch, useSelector } from "react-redux";
+// import { getWeatheHanlder } from './redux/features/weatherSlice';
+import { fetchItems, type Weather} from './redux/features/itemsSlice';
 
-interface Weather {
-  cached: boolean;
-  temp: number;
-  tempmax: number;
-  tempmin: number;
-  zip: string;
-}
 
 function App() {
-  const [weather, setWeather] = useState({} as Weather|null)
   const [zip, setZip] = useState('')
-  const [error, setError] = useState('')
-
+  const dispatch = useDispatch();
+  const { items, loading, error } = useSelector((state: any) => {console.log('state:',state); return state.items});
+  console.log('weather from store: ', items, loading, error);
+  const [errorMessage, setErrorMessage] = useState(error)
+  const [weatherResult, setWeatherResult] = useState(null as Weather | null);
+  console.log('weatherResult: ', weatherResult);
 
   const handleChange = (event: any) => {
     setZip(event.target.value); // Update the state with the new input value
+    setErrorMessage('');
   };
 
   const getWeather = () => {
-    setError('');
-    setWeather(null);
+    setErrorMessage('');
+    setWeatherResult(null);
 
-    if(!zip) {
-      setError("Please enter a zip code")
+    if (!zip) {
+      setErrorMessage('');
       return;
     }
-    
-    fetch('http://localhost:8080/weather/' + zip)
-    .then(response => {
-      console.log(response.ok);
-      if (!response.ok) {
-        setWeather(null);
-        setError("Failed to fetch weather data")
-        return null;
-        // throw new Error("Failed to fetch weather data")
-      }else {
-        console.log(response.json)
-        return response.json();}
-      }
-      
-    ).then(json => {
-     console.log('json: ', json)
-     if(json) {
-       setWeather(json)
-       setError('')
-     }else {
-      setError("Failed to fetch weather data")
-     }
-    }).catch(error => {
-      console.log(error)
-      setError(error)
-      setWeather(null);
-    })
+
+    dispatch(fetchItems(zip));
   };
+
+  useEffect(() => {
+    setWeatherResult(items.find((item: any) => item.zip === zip) || null);
+    setErrorMessage(error);
+    console.log('useEffect weather1: ', weatherResult);
+  });
 
   return (
     <>
-      <input id="zip" type='text' value={zip} placeholder="Enter zip code..." onChange={handleChange}/> 
-      <button onClick={getWeather}>Get Temperature</button>
-      {weather && (
-      <table border={1}>
-        <tr>
-          <td>Weather Data Cached: </td><td>{weather.cached?'Yes':'No'}</td>
-        </tr>
-        <tr>
-          <td>Current Temperature: </td><td>{weather.temp}</td>
-        </tr>
-        <tr>
-          <td>Highest Temperature: </td><td>{weather.tempmax}</td>
-        </tr>
-        <tr>
-          <td>Lowest Temperature: </td><td>{weather.tempmin}</td>
-        </tr>
-      </table>
+      <input id="zip" type='text' value={zip} placeholder="Enter zip code..." onChange={handleChange} />
+      <button onClick={getWeather} disabled={loading}>Get Temperature</button>
+      {weatherResult && (
+        <table border={1}>
+          <tbody>
+          <tr>
+            <td>Weather Data Cached: </td><td>{weatherResult.cached ? 'Yes' : 'No'}</td>
+          </tr>
+          <tr>
+            <td>Current Temperature: </td><td>{weatherResult.temp}</td>
+          </tr>
+          <tr>
+            <td>Highest Temperature: </td><td>{weatherResult.tempmax}</td>
+          </tr>
+          <tr>
+            <td>Lowest Temperature: </td><td>{weatherResult.tempmin}</td>
+          </tr>
+          </tbody>
+        </table>
       )}
-        <tr>
-          <td style={{ color: 'red' }}>{error}</td>
-        </tr>
-      
-       
+      <div style={{ color: 'red' }}>{errorMessage}</div>
+      <div style={{ color: 'green' }}>{loading?'Loading':null}</div>
+
+
     </>
   )
 }
