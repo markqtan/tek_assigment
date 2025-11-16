@@ -1,25 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '../store'; 
 import axios from "axios";
 
 const API = axios.create({ baseURL: "http://localhost:8080" });
-
-
-// Assume you have an async thunk defined
-export const fetchItems = createAsyncThunk('items/fetchItems', async (zip: string, { rejectWithValue }) => {
-  try {
-        const response = await API.get("/weather/"  + zip);
-        console.log('response data: ', response.data);
-        // return {zip: zip, data: response.data};
-        return {...response.data, zip};
-    } catch (err: any) {
-        console.log('error: ', err);
-        return rejectWithValue({
-        message: err.response?.data?.message || 'Failed to fetch user data',
-        statusCode: err.response?.status || 500,
-      });
-    }
-});
-
 export interface Weather {
     cached: boolean;
     temp: number;
@@ -42,13 +25,29 @@ const initialState: ItemsState = {
   loading: false,
 };
 
+// Assume you have an async thunk defined
+export const fetchItems = createAsyncThunk('items/fetchItems', async (zip: string, { rejectWithValue }) => {
+  try {
+        const response = await API.get("/weather/"  + zip);
+        console.log('response data: ', response.data);
+        // return {zip: zip, data: response.data};
+        return {...response.data, zip};
+    } catch (err: any) {
+        console.log('error: ', err);
+        return rejectWithValue({
+        message: err.response?.data?.message || 'Failed to fetch user data',
+        statusCode: err.response?.status || 500,
+      });
+    }
+});
+
 const itemsSlice = createSlice({
   name: 'items',
   initialState,
   reducers: {},
   extraReducers: (builder) => { // Use the builder callback
     builder
-      .addCase(fetchItems.fulfilled, (state, action) => {
+      .addCase(fetchItems.fulfilled, (state, action: PayloadAction<Weather>) => {
         // Immer (built into RTK) allows direct mutation
         state.status = 'succeeded';
         const filtered = state.items.filter(item => item.zip !== action.payload.zip);
@@ -57,12 +56,12 @@ const itemsSlice = createSlice({
         state.error = null;
         state.loading = false;
       })
-      .addCase(fetchItems.pending, (state, action) => {
+      .addCase(fetchItems.pending, (state, action: PayloadAction<any>) => {
         state.status = 'loading';
         state.error = null;
         state.loading = true;
       })
-      .addCase(fetchItems.rejected, (state, action) => {
+      .addCase(fetchItems.rejected, (state, action: PayloadAction<any>) => {
         state.status = 'failed';
         // state.error = action.error.message || 'Something went wrong';
         const msg = action.payload as {message: string, statusCode: number};
@@ -71,5 +70,7 @@ const itemsSlice = createSlice({
       });
   },
 });
+
+export const selectItems = (state: RootState) => {console.log('state:',state); return state.items};
 
 export default itemsSlice.reducer;

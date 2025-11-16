@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { useDispatch, useSelector } from "react-redux";
+// import { useDispatch, useSelector } from "react-redux";
 // import { getWeatheHanlder } from './redux/features/weatherSlice';
-import { fetchItems, type Weather} from './redux/features/itemsSlice';
-
+import { fetchItems, selectItems, type Weather} from './redux/features/itemsSlice';
+import { useAppSelector, useAppDispatch } from './redux/hooks';
 
 function App() {
   const [zip, setZip] = useState('')
-  const dispatch = useDispatch();
-  const { items, loading, error } = useSelector((state: any) => {console.log('state:',state); return state.items});
+  // const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  // const { items, loading, error } = useSelector((state: any) => {console.log('state:',state); return state.items});
+  const { items, loading, error } = useAppSelector(selectItems);
   console.log('weather from store: ', items, loading, error);
   const [errorMessage, setErrorMessage] = useState(error)
   const [weatherResult, setWeatherResult] = useState(null as Weather | null);
